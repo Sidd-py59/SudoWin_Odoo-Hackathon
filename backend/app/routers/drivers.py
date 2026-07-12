@@ -1,11 +1,13 @@
-from datetime import date, datetime
+﻿from datetime import date, datetime
 from enum import Enum
 from typing import Optional
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
 
-from app.routers._responses import route_stub
+from ..auth import AuthUser
+from ..dependencies import require_roles
+from ._responses import route_stub
 
 router = APIRouter(prefix="/drivers", tags=["Drivers"])
 
@@ -38,35 +40,70 @@ class DriverUpdate(BaseModel):
 
 
 @router.get("")
-def list_drivers(status: Optional[DriverStatus] = None) -> dict:
-    return route_stub("drivers", "list", status=status)
+def list_drivers(
+    status: Optional[DriverStatus] = None,
+    current_user: AuthUser = Depends(
+        require_roles(["dispatcher", "fleet_manager", "safety_officer"])
+    ),
+) -> dict:
+    return route_stub("drivers", "list", status=status, actor=current_user.email)
 
 
 @router.post("")
-def create_driver(payload: DriverCreate) -> dict:
-    return route_stub("drivers", "create", payload=payload.model_dump())
+def create_driver(
+    payload: DriverCreate,
+    current_user: AuthUser = Depends(require_roles(["dispatcher", "safety_officer"])),
+) -> dict:
+    return route_stub("drivers", "create", payload=payload.model_dump(), actor=current_user.email)
 
 
 @router.get("/available")
-def list_available_drivers() -> dict:
-    return route_stub("drivers", "available", status=DriverStatus.available)
+def list_available_drivers(
+    current_user: AuthUser = Depends(require_roles(["dispatcher", "fleet_manager"])),
+) -> dict:
+    return route_stub(
+        "drivers",
+        "available",
+        status=DriverStatus.available,
+        actor=current_user.email,
+    )
 
 
 @router.get("/{driver_id}")
-def get_driver(driver_id: int) -> dict:
-    return route_stub("drivers", "get", driver_id=driver_id)
+def get_driver(
+    driver_id: int,
+    current_user: AuthUser = Depends(
+        require_roles(["dispatcher", "fleet_manager", "safety_officer"])
+    ),
+) -> dict:
+    return route_stub("drivers", "get", driver_id=driver_id, actor=current_user.email)
 
 
 @router.put("/{driver_id}")
-def update_driver(driver_id: int, payload: DriverUpdate) -> dict:
+def update_driver(
+    driver_id: int,
+    payload: DriverUpdate,
+    current_user: AuthUser = Depends(require_roles(["dispatcher", "safety_officer"])),
+) -> dict:
     return route_stub(
         "drivers",
         "update",
         driver_id=driver_id,
         payload=payload.model_dump(exclude_unset=True),
+        actor=current_user.email,
     )
 
 
 @router.delete("/{driver_id}")
-def delete_driver(driver_id: int) -> dict:
-    return route_stub("drivers", "delete", driver_id=driver_id, deleted_at=datetime.utcnow())
+def delete_driver(
+    driver_id: int,
+    current_user: AuthUser = Depends(require_roles(["safety_officer"])),
+) -> dict:
+    return route_stub(
+        "drivers",
+        "delete",
+        driver_id=driver_id,
+        deleted_at=datetime.utcnow(),
+        actor=current_user.email,
+    )
+

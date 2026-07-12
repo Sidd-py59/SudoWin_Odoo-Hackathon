@@ -1,11 +1,13 @@
-from datetime import datetime
+﻿from datetime import datetime
 from enum import Enum
 from typing import Optional
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel, Field
 
-from app.routers._responses import route_stub
+from ..auth import AuthUser
+from ..dependencies import require_roles
+from ._responses import route_stub
 
 router = APIRouter(prefix="/vehicles", tags=["Vehicles"])
 
@@ -50,35 +52,75 @@ def list_vehicles(
     status: Optional[VehicleStatus] = None,
     type: Optional[VehicleType] = None,
     region: Optional[str] = Query(default=None, min_length=2),
+    current_user: AuthUser = Depends(
+        require_roles(["fleet_manager", "dispatcher", "safety_officer"])
+    ),
 ) -> dict:
-    return route_stub("vehicles", "list", status=status, type=type, region=region)
+    return route_stub(
+        "vehicles",
+        "list",
+        status=status,
+        type=type,
+        region=region,
+        actor=current_user.email,
+    )
 
 
 @router.post("")
-def create_vehicle(payload: VehicleCreate) -> dict:
-    return route_stub("vehicles", "create", payload=payload.model_dump())
+def create_vehicle(
+    payload: VehicleCreate,
+    current_user: AuthUser = Depends(require_roles(["fleet_manager"])),
+) -> dict:
+    return route_stub("vehicles", "create", payload=payload.model_dump(), actor=current_user.email)
 
 
 @router.get("/available")
-def list_available_vehicles() -> dict:
-    return route_stub("vehicles", "available", status=VehicleStatus.available)
+def list_available_vehicles(
+    current_user: AuthUser = Depends(require_roles(["fleet_manager", "dispatcher"])),
+) -> dict:
+    return route_stub(
+        "vehicles",
+        "available",
+        status=VehicleStatus.available,
+        actor=current_user.email,
+    )
 
 
 @router.get("/{vehicle_id}")
-def get_vehicle(vehicle_id: int) -> dict:
-    return route_stub("vehicles", "get", vehicle_id=vehicle_id)
+def get_vehicle(
+    vehicle_id: int,
+    current_user: AuthUser = Depends(
+        require_roles(["fleet_manager", "dispatcher", "safety_officer"])
+    ),
+) -> dict:
+    return route_stub("vehicles", "get", vehicle_id=vehicle_id, actor=current_user.email)
 
 
 @router.put("/{vehicle_id}")
-def update_vehicle(vehicle_id: int, payload: VehicleUpdate) -> dict:
+def update_vehicle(
+    vehicle_id: int,
+    payload: VehicleUpdate,
+    current_user: AuthUser = Depends(require_roles(["fleet_manager"])),
+) -> dict:
     return route_stub(
         "vehicles",
         "update",
         vehicle_id=vehicle_id,
         payload=payload.model_dump(exclude_unset=True),
+        actor=current_user.email,
     )
 
 
 @router.delete("/{vehicle_id}")
-def delete_vehicle(vehicle_id: int) -> dict:
-    return route_stub("vehicles", "delete", vehicle_id=vehicle_id, deleted_at=datetime.utcnow())
+def delete_vehicle(
+    vehicle_id: int,
+    current_user: AuthUser = Depends(require_roles(["fleet_manager"])),
+) -> dict:
+    return route_stub(
+        "vehicles",
+        "delete",
+        vehicle_id=vehicle_id,
+        deleted_at=datetime.utcnow(),
+        actor=current_user.email,
+    )
+

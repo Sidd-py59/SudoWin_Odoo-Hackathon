@@ -1,7 +1,7 @@
-from fastapi import FastAPI
+﻿from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers import (
+from .routers import (
     analytics,
     audit,
     auth,
@@ -42,3 +42,4 @@ app.include_router(maintenance.router)
 app.include_router(expenses.router)
 app.include_router(analytics.router)
 app.include_router(audit.router)
+

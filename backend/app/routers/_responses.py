@@ -1,4 +1,4 @@
-from typing import Any
+﻿from typing import Any
 
 
 def route_stub(resource: str, action: str, **data: Any) -> dict[str, Any]:
@@ -9,3 +9,4 @@ def route_stub(resource: str, action: str, **data: Any) -> dict[str, Any]:
         "wired": False,
         "data": data,
     }
+

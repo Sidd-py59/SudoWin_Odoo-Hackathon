@@ -1,10 +1,12 @@
-from enum import Enum
+﻿from enum import Enum
 from typing import Optional
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
 
-from app.routers._responses import route_stub
+from ..auth import AuthUser
+from ..dependencies import require_roles
+from ._responses import route_stub
 
 router = APIRouter(prefix="/trips", tags=["Trips"])
 
@@ -41,25 +43,57 @@ class TripCompleteRequest(BaseModel):
 
 
 @router.get("")
-def list_trips(status: Optional[TripStatus] = None) -> dict:
-    return route_stub("trips", "list", status=status)
+def list_trips(
+    status: Optional[TripStatus] = None,
+    current_user: AuthUser = Depends(
+        require_roles(["dispatcher", "fleet_manager", "financial_analyst"])
+    ),
+) -> dict:
+    return route_stub("trips", "list", status=status, actor=current_user.email)
 
 
 @router.post("")
-def create_trip(payload: TripCreate) -> dict:
-    return route_stub("trips", "create", payload=payload.model_dump())
+def create_trip(
+    payload: TripCreate,
+    current_user: AuthUser = Depends(require_roles(["dispatcher"])),
+) -> dict:
+    return route_stub("trips", "create", payload=payload.model_dump(), actor=current_user.email)
 
 
 @router.post("/{trip_id}/dispatch")
-def dispatch_trip(trip_id: int, payload: TripDispatchRequest) -> dict:
-    return route_stub("trips", "dispatch", trip_id=trip_id, payload=payload.model_dump())
+def dispatch_trip(
+    trip_id: int,
+    payload: TripDispatchRequest,
+    current_user: AuthUser = Depends(require_roles(["dispatcher"])),
+) -> dict:
+    return route_stub(
+        "trips",
+        "dispatch",
+        trip_id=trip_id,
+        payload=payload.model_dump(),
+        actor=current_user.email,
+    )
 
 
 @router.post("/{trip_id}/complete")
-def complete_trip(trip_id: int, payload: TripCompleteRequest) -> dict:
-    return route_stub("trips", "complete", trip_id=trip_id, payload=payload.model_dump())
+def complete_trip(
+    trip_id: int,
+    payload: TripCompleteRequest,
+    current_user: AuthUser = Depends(require_roles(["dispatcher"])),
+) -> dict:
+    return route_stub(
+        "trips",
+        "complete",
+        trip_id=trip_id,
+        payload=payload.model_dump(),
+        actor=current_user.email,
+    )
 
 
 @router.post("/{trip_id}/cancel")
-def cancel_trip(trip_id: int) -> dict:
-    return route_stub("trips", "cancel", trip_id=trip_id)
+def cancel_trip(
+    trip_id: int,
+    current_user: AuthUser = Depends(require_roles(["dispatcher"])),
+) -> dict:
+    return route_stub("trips", "cancel", trip_id=trip_id, actor=current_user.email)
+

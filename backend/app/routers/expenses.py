@@ -1,10 +1,12 @@
-from datetime import date
+﻿from datetime import date
 from typing import Optional
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
 
-from app.routers._responses import route_stub
+from ..auth import AuthUser
+from ..dependencies import require_roles
+from ._responses import route_stub
 
 router = APIRouter(tags=["Expenses And Fuel"])
 
@@ -26,20 +28,31 @@ class FuelLogCreate(BaseModel):
 
 
 @router.get("/expenses")
-def list_expenses() -> dict:
-    return route_stub("expenses", "list")
+def list_expenses(
+    current_user: AuthUser = Depends(require_roles(["financial_analyst", "fleet_manager"])),
+) -> dict:
+    return route_stub("expenses", "list", actor=current_user.email)
 
 
 @router.post("/expenses")
-def create_expense(payload: ExpenseCreate) -> dict:
-    return route_stub("expenses", "create", payload=payload.model_dump())
+def create_expense(
+    payload: ExpenseCreate,
+    current_user: AuthUser = Depends(require_roles(["financial_analyst", "dispatcher"])),
+) -> dict:
+    return route_stub("expenses", "create", payload=payload.model_dump(), actor=current_user.email)
 
 
 @router.get("/fuel-logs")
-def list_fuel_logs() -> dict:
-    return route_stub("fuel_logs", "list")
+def list_fuel_logs(
+    current_user: AuthUser = Depends(require_roles(["financial_analyst", "fleet_manager"])),
+) -> dict:
+    return route_stub("fuel_logs", "list", actor=current_user.email)
 
 
 @router.post("/fuel-logs")
-def create_fuel_log(payload: FuelLogCreate) -> dict:
-    return route_stub("fuel_logs", "create", payload=payload.model_dump())
+def create_fuel_log(
+    payload: FuelLogCreate,
+    current_user: AuthUser = Depends(require_roles(["financial_analyst", "dispatcher"])),
+) -> dict:
+    return route_stub("fuel_logs", "create", payload=payload.model_dump(), actor=current_user.email)
+

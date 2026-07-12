@@ -1,7 +1,15 @@
-[project]
+﻿[project]
 name = "odoo-hackathon-transitops"
 version = "0.1.0"
-description = "Add your description here"
+description = "TransitOps hackathon project"
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "email-validator",
+    "fastapi",
+    "passlib[bcrypt]",
+    "pydantic",
+    "python-jose",
+    "python-multipart",
+    "uvicorn",
+]
