@@ -67,7 +67,7 @@ const roleAccess: Record<NonNullable<Role>, string[]> = {
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
-  const { role, logout } = useAuth();
+  const { role, user, logout } = useAuth();
 
   const allowedNavItems = appNavigation.filter(
     (item) => role && roleAccess[role]?.includes(item.title),
@@ -157,7 +157,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                       className="h-9 rounded-md border-border/70 bg-card px-2"
                     >
                       <UserCircle2 className="h-4 w-4" />
-                      <span className="hidden lg:inline">Alex Morgan</span>
+                      <span className="hidden lg:inline">{user?.full_name ?? "TransitOps User"}</span>
                       <ChevronDown className="h-4 w-4 text-muted-foreground" />
                     </Button>
                   </DropdownMenuTrigger>
@@ -205,3 +205,4 @@ export function AppShell({ children }: { children: ReactNode }) {
     </div>
   );
 }
+
