@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export const Route = createFileRoute("/settings")({
   head: () => ({
@@ -36,8 +36,21 @@ export const Route = createFileRoute("/settings")({
 });
 
 function SettingsPage() {
-  const [theme, setTheme] = useState("system");
+  const [theme, setTheme] = useState(() => localStorage.getItem("transitops_theme") || "system");
   const [saveMessage, setSaveMessage] = useState("");
+
+  useEffect(() => {
+    const root = window.document.documentElement;
+    root.classList.remove("light", "dark");
+    if (theme === "system") {
+      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      root.classList.add(systemTheme);
+    } else {
+      root.classList.add(theme);
+    }
+    localStorage.setItem("transitops_theme", theme);
+  }, [theme]);
+
   const [companyProfile, setCompanyProfile] = useState({
     companyName: "TransitOps Logistics Pvt Ltd",
     supportEmail: "ops@transitops.io",

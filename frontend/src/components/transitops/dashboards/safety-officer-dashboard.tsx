@@ -1,9 +1,24 @@
-import { ShieldAlert, AlertTriangle, CheckCircle, Search, FileText } from "lucide-react";
+import { AlertTriangle, FileText, Mail, ShieldAlert } from "lucide-react";
+import { useState } from "react";
 import { drivers } from "@/lib/transitops-data";
+import { Button } from "@/components/ui/button";
 
 export function SafetyOfficerDashboard() {
+  const [reminderStatus, setReminderStatus] = useState<string | null>(null);
+
   const atRiskDrivers = drivers.filter((d) => d.safetyScore < 80);
-  const expiringLicenses = drivers.filter((d) => d.expiryDate.startsWith("2024")); // Simplified mock logic
+  const expiringLicenses = drivers.filter((d) => {
+    // Check if license is expired or expires in the next 12 months (mock checking 2024 or 2026/2027 depending on current year)
+    const year = new Date(d.expiryDate).getFullYear();
+    return year <= 2027; 
+  });
+
+  function sendEmailReminder(name: string, license: string) {
+    setReminderStatus(`Simulated email reminder successfully sent to ${name} (${license})!`);
+    window.setTimeout(() => {
+      setReminderStatus(null);
+    }, 4000);
+  }
 
   return (
     <div className="relative space-y-4 overflow-hidden sm:space-y-6">
@@ -28,6 +43,13 @@ export function SafetyOfficerDashboard() {
         </div>
       </section>
 
+      {reminderStatus && (
+        <div className="animate-in fade-in slide-in-from-top duration-300 rounded-md border border-status-available/30 bg-status-available/10 px-4 py-3 text-sm text-foreground flex items-center gap-2">
+          <ShieldAlert className="h-4 w-4 text-status-available" />
+          <span>{reminderStatus}</span>
+        </div>
+      )}
+
       <section className="grid gap-4 sm:grid-cols-3">
         <article className="rounded-lg border border-border/55 bg-[linear-gradient(160deg,color-mix(in_oklab,var(--color-background)_74%,var(--color-accent)_26%)_0%,color-mix(in_oklab,var(--color-background)_90%,var(--color-card)_10%)_100%)] p-4 shadow-[inset_0_1px_0_color-mix(in_oklab,var(--color-foreground)_6%,transparent)]">
           <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
@@ -50,7 +72,7 @@ export function SafetyOfficerDashboard() {
             Average Safety Score
           </p>
           <p className="mt-2 text-3xl font-semibold tracking-tight text-status-available">
-            {Math.round(drivers.reduce((acc, d) => acc + d.safetyScore, 0) / drivers.length)}
+            {drivers.length ? Math.round(drivers.reduce((acc, d) => acc + d.safetyScore, 0) / drivers.length) : 0}
           </p>
         </article>
       </section>
@@ -91,11 +113,19 @@ export function SafetyOfficerDashboard() {
                   <span className="text-sm font-semibold">{d.name}</span>
                   <span className="text-xs text-muted-foreground">{d.licenseNumber}</span>
                 </div>
-                <div className="flex flex-col items-end">
+                <div className="flex flex-col items-end gap-1.5">
                   <span className="text-xs font-semibold text-status-maintenance">
                     Expires Soon
                   </span>
                   <span className="text-xs text-muted-foreground">{d.expiryDate}</span>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 px-2.5 text-xs text-primary"
+                    onClick={() => sendEmailReminder(d.name, d.licenseNumber)}
+                  >
+                    <Mail className="mr-1 h-3.5 w-3.5" /> Send Reminder
+                  </Button>
                 </div>
               </div>
             ))}

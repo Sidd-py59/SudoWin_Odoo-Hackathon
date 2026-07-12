@@ -1,12 +1,15 @@
 ﻿from datetime import date
 from typing import Optional
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from pydantic import BaseModel, Field
+from sqlalchemy.orm import Session
 
 from ..auth import AuthUser
+from ..database import get_db
 from ..dependencies import require_roles
-from ._responses import route_stub
+from ..models import Expense, FuelLog
+from ..services.audit_service import log_audit
 
 router = APIRouter(tags=["Expenses And Fuel"])
 
@@ -27,32 +30,71 @@ class FuelLogCreate(BaseModel):
     log_date: date
 
 
+def serialize_expense(item: Expense) -> dict:
+    return {
+        "id": item.id,
+        "trip_id": item.trip_id,
+        "vehicle_id": item.vehicle_id,
+        "toll_cost": item.toll_cost,
+        "repair_cost": item.repair_cost,
+        "other_cost": item.other_cost,
+        "total_cost": item.toll_cost + item.repair_cost + item.other_cost,
+        "created_at": item.created_at,
+    }
+
+
+def serialize_fuel(item: FuelLog) -> dict:
+    return {
+        "id": item.id,
+        "vehicle_id": item.vehicle_id,
+        "trip_id": item.trip_id,
+        "liters": item.liters,
+        "cost": item.cost,
+        "log_date": item.log_date,
+    }
+
+
 @router.get("/expenses")
 def list_expenses(
     current_user: AuthUser = Depends(require_roles(["financial_analyst", "fleet_manager"])),
-) -> dict:
-    return route_stub("expenses", "list", actor=current_user.email)
+    db: Session = Depends(get_db),
+) -> list[dict]:
+    return [serialize_expense(item) for item in db.query(Expense).order_by(Expense.id.desc()).all()]
 
 
-@router.post("/expenses")
+@router.post("/expenses", status_code=status.HTTP_201_CREATED)
 def create_expense(
     payload: ExpenseCreate,
     current_user: AuthUser = Depends(require_roles(["financial_analyst", "dispatcher"])),
+    db: Session = Depends(get_db),
 ) -> dict:
-    return route_stub("expenses", "create", payload=payload.model_dump(), actor=current_user.email)
+    item = Expense(**payload.model_dump(mode="json"))
+    db.add(item)
+    db.flush()
+    log_audit(db, "expense", item.id, "created", None, str(serialize_expense(item)), current_user.id)
+    db.commit()
+    db.refresh(item)
+    return serialize_expense(item)
 
 
 @router.get("/fuel-logs")
 def list_fuel_logs(
     current_user: AuthUser = Depends(require_roles(["financial_analyst", "fleet_manager"])),
-) -> dict:
-    return route_stub("fuel_logs", "list", actor=current_user.email)
+    db: Session = Depends(get_db),
+) -> list[dict]:
+    return [serialize_fuel(item) for item in db.query(FuelLog).order_by(FuelLog.id.desc()).all()]
 
 
-@router.post("/fuel-logs")
+@router.post("/fuel-logs", status_code=status.HTTP_201_CREATED)
 def create_fuel_log(
     payload: FuelLogCreate,
     current_user: AuthUser = Depends(require_roles(["financial_analyst", "dispatcher"])),
+    db: Session = Depends(get_db),
 ) -> dict:
-    return route_stub("fuel_logs", "create", payload=payload.model_dump(), actor=current_user.email)
-
+    item = FuelLog(**payload.model_dump(mode="json"))
+    db.add(item)
+    db.flush()
+    log_audit(db, "fuel_log", item.id, "created", None, str(serialize_fuel(item)), current_user.id)
+    db.commit()
+    db.refresh(item)
+    return serialize_fuel(item)

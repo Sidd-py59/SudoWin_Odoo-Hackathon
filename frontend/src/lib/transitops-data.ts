@@ -1,3 +1,5 @@
+import type { ApiVehicle, ApiDriver, ApiTrip, ApiMaintenance, ApiFuelLog, ApiExpense } from "./api";
+
 export type VehicleStatus = "available" | "on_trip" | "maintenance" | "retired";
 export type DriverStatus = "available" | "on_trip" | "suspended" | "off_duty";
 export type TripStatus = "draft" | "dispatched" | "completed" | "cancelled";
@@ -391,4 +393,109 @@ export function validateTrip(payload: {
   }
 
   return messages;
+}
+
+export function syncBackendData({
+  apiVehicles,
+  apiDrivers,
+  apiTrips,
+  apiMaintenance,
+  apiFuel,
+  apiExpenses,
+}: {
+  apiVehicles?: ApiVehicle[];
+  apiDrivers?: ApiDriver[];
+  apiTrips?: ApiTrip[];
+  apiMaintenance?: ApiMaintenance[];
+  apiFuel?: ApiFuelLog[];
+  apiExpenses?: ApiExpense[];
+}) {
+  if (apiVehicles) {
+    vehicles.length = 0;
+    apiVehicles.forEach((v) => {
+      vehicles.push({
+        id: String(v.id),
+        registrationNumber: v.registration_number,
+        name: v.name_model,
+        type: (v.type === "mini" ? "Mini Truck" : v.type[0].toUpperCase() + v.type.slice(1)) as VehicleType,
+        capacityKg: v.max_load_kg,
+        odometerKm: v.odometer,
+        acquisitionCost: v.acquisition_cost,
+        status: v.status === "in_shop" ? "maintenance" : v.status,
+      });
+    });
+  }
+
+  if (apiDrivers) {
+    drivers.length = 0;
+    apiDrivers.forEach((d) => {
+      drivers.push({
+        id: String(d.id),
+        name: d.name,
+        licenseNumber: d.license_number,
+        category: d.license_category as any,
+        expiryDate: d.license_expiry,
+        phone: d.contact_number,
+        safetyScore: d.safety_score,
+        status: d.status as any,
+      });
+    });
+  }
+
+  if (apiTrips) {
+    trips.length = 0;
+    apiTrips.forEach((t) => {
+      trips.push({
+        id: t.trip_code,
+        vehicleId: t.vehicle ? String(t.vehicle.id) : "Unassigned",
+        driverId: t.driver ? String(t.driver.id) : "Unassigned",
+        source: t.source,
+        destination: t.destination,
+        cargoWeightKg: t.cargo_weight_kg,
+        distanceKm: t.actual_distance_km ?? t.planned_distance_km,
+        status: t.status,
+      });
+    });
+  }
+
+  if (apiMaintenance) {
+    maintenanceLogs.length = 0;
+    apiMaintenance.forEach((m) => {
+      maintenanceLogs.push({
+        id: `mnt-${m.id}`,
+        vehicleId: m.vehicle ? String(m.vehicle.id) : String(m.vehicle_id),
+        issue: m.service_type,
+        cost: m.cost,
+        workshop: "Authorized Service Center",
+        date: m.service_date,
+        status: m.status === "active" ? "in_progress" : "closed",
+      });
+    });
+  }
+
+  if (apiFuel) {
+    fuelLogs.length = 0;
+    apiFuel.forEach((f) => {
+      fuelLogs.push({
+        id: `fuel-${f.id}`,
+        vehicleId: String(f.vehicle_id),
+        liters: f.liters,
+        cost: f.cost,
+        date: f.log_date,
+      });
+    });
+  }
+
+  if (apiExpenses) {
+    expenseLogs.length = 0;
+    apiExpenses.forEach((e) => {
+      expenseLogs.push({
+        id: `exp-${e.id}`,
+        vehicleId: e.vehicle_id ? String(e.vehicle_id) : "Unknown",
+        type: e.repair_cost > 0 ? "Maintenance" : e.toll_cost > 0 ? "Toll" : "Other",
+        amount: e.total_cost,
+        notes: "Logged expense",
+      });
+    });
+  }
 }
