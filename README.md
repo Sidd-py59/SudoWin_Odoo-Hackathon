@@ -194,6 +194,18 @@ The dashboard provides real-time insights including:
 
 TransitOps is designed to simplify transport operations by combining fleet management, driver compliance, trip dispatch, maintenance tracking, expense monitoring, and operational analytics into a single intelligent workflow. By automating critical business rules and providing actionable insights, the platform helps organizations operate more safely, efficiently, and profitably.
 
+---
+
+## 📸 Snapshots
+
+![Snapshot 1](Images/Screenshot%202026-07-12%20171009.png)
+![Snapshot 2](Images/Screenshot%202026-07-12%20171025.png)
+![Snapshot 3](Images/Screenshot%202026-07-12%20171053.png)
+![Snapshot 4](Images/Screenshot%202026-07-12%20171103.png)
+![Snapshot 5](Images/Screenshot%202026-07-12%20171117.png)
+
+---
+
 ## 👨‍💻 Team
 
 **Team Name:** Sudo Win
