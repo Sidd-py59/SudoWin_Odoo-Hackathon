@@ -1,6 +1,7 @@
 ﻿from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from .database import SessionLocal, init_db
 from .routers import (
     analytics,
     audit,
@@ -12,6 +13,7 @@ from .routers import (
     trips,
     vehicles,
 )
+from .seed import seed_database
 
 app = FastAPI(
     title="TransitOps API",
@@ -33,6 +35,16 @@ app.add_middleware(
 )
 
 
+@app.on_event("startup")
+def on_startup() -> None:
+    init_db()
+    db = SessionLocal()
+    try:
+        seed_database(db)
+    finally:
+        db.close()
+
+
 @app.get("/health", tags=["Health"])
 def health_check() -> dict[str, str]:
     return {"status": "ok"}
@@ -47,4 +59,3 @@ app.include_router(maintenance.router)
 app.include_router(expenses.router)
 app.include_router(analytics.router)
 app.include_router(audit.router)
-

@@ -2,12 +2,15 @@
 from enum import Enum
 from typing import Optional
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session
 
 from ..auth import AuthUser
+from ..database import get_db
 from ..dependencies import require_roles
-from ._responses import route_stub
+from ..models import Vehicle
 
 router = APIRouter(prefix="/vehicles", tags=["Vehicles"])
 
@@ -23,6 +26,7 @@ class VehicleType(str, Enum):
     van = "van"
     truck = "truck"
     mini = "mini"
+    bus = "bus"
 
 
 class VehicleCreate(BaseModel):
@@ -47,43 +51,80 @@ class VehicleUpdate(BaseModel):
     region: Optional[str] = Field(default=None, min_length=2, max_length=80)
 
 
+def serialize_vehicle(vehicle: Vehicle) -> dict:
+    return {
+        "id": vehicle.id,
+        "registration_number": vehicle.registration_number,
+        "name_model": vehicle.name_model,
+        "type": vehicle.type,
+        "max_load_kg": vehicle.max_load_kg,
+        "odometer": vehicle.odometer,
+        "acquisition_cost": vehicle.acquisition_cost,
+        "status": vehicle.status,
+        "region": vehicle.region,
+        "created_at": vehicle.created_at,
+    }
+
+
+def get_vehicle_or_404(db: Session, vehicle_id: int) -> Vehicle:
+    vehicle = db.get(Vehicle, vehicle_id)
+    if vehicle is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Vehicle not found")
+    return vehicle
+
+
 @router.get("")
 def list_vehicles(
-    status: Optional[VehicleStatus] = None,
-    type: Optional[VehicleType] = None,
+    status_filter: Optional[VehicleStatus] = Query(default=None, alias="status"),
+    type_filter: Optional[VehicleType] = Query(default=None, alias="type"),
     region: Optional[str] = Query(default=None, min_length=2),
     current_user: AuthUser = Depends(
         require_roles(["fleet_manager", "dispatcher", "safety_officer"])
     ),
-) -> dict:
-    return route_stub(
-        "vehicles",
-        "list",
-        status=status,
-        type=type,
-        region=region,
-        actor=current_user.email,
-    )
+    db: Session = Depends(get_db),
+) -> list[dict]:
+    query = db.query(Vehicle)
+    if status_filter:
+        query = query.filter(Vehicle.status == status_filter.value)
+    if type_filter:
+        query = query.filter(Vehicle.type == type_filter.value)
+    if region:
+        query = query.filter(Vehicle.region.ilike(f"%{region}%"))
+    return [serialize_vehicle(vehicle) for vehicle in query.order_by(Vehicle.id).all()]
 
 
-@router.post("")
+@router.post("", status_code=status.HTTP_201_CREATED)
 def create_vehicle(
     payload: VehicleCreate,
     current_user: AuthUser = Depends(require_roles(["fleet_manager"])),
+    db: Session = Depends(get_db),
 ) -> dict:
-    return route_stub("vehicles", "create", payload=payload.model_dump(), actor=current_user.email)
+    vehicle = Vehicle(**payload.model_dump(mode="json"))
+    db.add(vehicle)
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Vehicle registration number already exists",
+        )
+    db.refresh(vehicle)
+    return serialize_vehicle(vehicle)
 
 
 @router.get("/available")
 def list_available_vehicles(
     current_user: AuthUser = Depends(require_roles(["fleet_manager", "dispatcher"])),
-) -> dict:
-    return route_stub(
-        "vehicles",
-        "available",
-        status=VehicleStatus.available,
-        actor=current_user.email,
+    db: Session = Depends(get_db),
+) -> list[dict]:
+    vehicles = (
+        db.query(Vehicle)
+        .filter(Vehicle.status == VehicleStatus.available.value)
+        .order_by(Vehicle.id)
+        .all()
     )
+    return [serialize_vehicle(vehicle) for vehicle in vehicles]
 
 
 @router.get("/{vehicle_id}")
@@ -92,8 +133,9 @@ def get_vehicle(
     current_user: AuthUser = Depends(
         require_roles(["fleet_manager", "dispatcher", "safety_officer"])
     ),
+    db: Session = Depends(get_db),
 ) -> dict:
-    return route_stub("vehicles", "get", vehicle_id=vehicle_id, actor=current_user.email)
+    return serialize_vehicle(get_vehicle_or_404(db, vehicle_id))
 
 
 @router.put("/{vehicle_id}")
@@ -101,26 +143,35 @@ def update_vehicle(
     vehicle_id: int,
     payload: VehicleUpdate,
     current_user: AuthUser = Depends(require_roles(["fleet_manager"])),
+    db: Session = Depends(get_db),
 ) -> dict:
-    return route_stub(
-        "vehicles",
-        "update",
-        vehicle_id=vehicle_id,
-        payload=payload.model_dump(exclude_unset=True),
-        actor=current_user.email,
-    )
+    vehicle = get_vehicle_or_404(db, vehicle_id)
+    for key, value in payload.model_dump(exclude_unset=True, mode="json").items():
+        setattr(vehicle, key, value)
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Vehicle registration number already exists",
+        )
+    db.refresh(vehicle)
+    return serialize_vehicle(vehicle)
 
 
 @router.delete("/{vehicle_id}")
 def delete_vehicle(
     vehicle_id: int,
     current_user: AuthUser = Depends(require_roles(["fleet_manager"])),
+    db: Session = Depends(get_db),
 ) -> dict:
-    return route_stub(
-        "vehicles",
-        "delete",
-        vehicle_id=vehicle_id,
-        deleted_at=datetime.utcnow(),
-        actor=current_user.email,
-    )
-
+    vehicle = get_vehicle_or_404(db, vehicle_id)
+    if vehicle.status == VehicleStatus.on_trip.value:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Cannot delete a vehicle that is currently on trip",
+        )
+    db.delete(vehicle)
+    db.commit()
+    return {"id": vehicle_id, "deleted_at": datetime.utcnow()}
