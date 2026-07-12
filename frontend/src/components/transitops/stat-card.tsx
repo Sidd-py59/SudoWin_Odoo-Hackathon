@@ -10,7 +10,7 @@ type StatCardProps = {
 
 export function StatCard({ title, value, hint, icon: Icon }: StatCardProps) {
   return (
-    <Card className="rounded-lg border-border/70 bg-card shadow-sm transition-all hover:border-primary/30 hover:shadow-md">
+    <Card className="rounded-[1.5rem] border-0 bg-card shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_12px_40px_rgb(0,0,0,0.08)]">
       <CardContent className="p-4">
         <div className="flex items-center justify-between gap-3">
           <div className="space-y-1">

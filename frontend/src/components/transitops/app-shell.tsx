@@ -74,10 +74,10 @@ export function AppShell({ children }: { children: ReactNode }) {
   );
 
   return (
-    <SidebarProvider defaultOpen>
-      <div className="flex min-h-svh w-full bg-background">
-        <Sidebar collapsible="icon">
-          <SidebarHeader className="border-b border-sidebar-border/80">
+    <div className="flex min-h-svh w-full bg-background p-2 sm:p-4 lg:p-6 xl:p-8 transition-all">
+      <SidebarProvider defaultOpen className="flex w-full flex-1 overflow-hidden rounded-[2rem] bg-card shadow-[0_8px_40px_rgb(0,0,0,0.06)] border border-border/40">
+        <Sidebar collapsible="icon" className="border-r-0 bg-transparent">
+          <SidebarHeader className="pt-6 pb-2 px-4">
             <div className="flex items-center gap-2 px-2 py-2">
               <div className="rounded-md bg-primary p-2">
                 <Bus className="h-4 w-4 text-primary-foreground" />
@@ -201,7 +201,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
           <main className="min-h-[calc(100svh-65px)] bg-muted/25 p-4 sm:p-6">{children}</main>
         </SidebarInset>
-      </div>
-    </SidebarProvider>
+      </SidebarProvider>
+    </div>
   );
 }

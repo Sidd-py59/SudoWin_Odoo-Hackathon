@@ -86,7 +86,7 @@ export function FleetManagerDashboard() {
       <div className="pointer-events-none absolute -left-24 -top-28 h-80 w-80 rounded-full bg-accent/24 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-32 -right-28 h-80 w-80 rounded-full bg-primary/12 blur-3xl" />
 
-      <section className="relative overflow-hidden rounded-lg border border-border/55 bg-[linear-gradient(145deg,color-mix(in_oklab,var(--color-card)_74%,var(--color-accent)_26%)_0%,color-mix(in_oklab,var(--color-card)_84%,var(--color-primary)_16%)_55%,var(--color-card)_100%)] px-4 py-4 shadow-[0_28px_68px_-52px_color-mix(in_oklab,var(--color-primary)_30%,transparent),inset_0_1px_0_color-mix(in_oklab,var(--color-foreground)_5%,transparent)] backdrop-blur-xl">
+      <section className="animate-in fade-in slide-in-from-bottom-4 duration-500 relative overflow-hidden rounded-[1.5rem] border-0 bg-card px-6 py-6 shadow-sm">
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/35 to-transparent" />
         <div className="grid gap-3 border-b border-border/60 pb-4 sm:flex sm:items-end sm:justify-between">
           <div>
@@ -106,31 +106,31 @@ export function FleetManagerDashboard() {
         </div>
       </section>
 
-      <section className="grid gap-4 xl:grid-cols-12">
-        <article className="relative overflow-hidden rounded-lg border border-border/55 bg-[linear-gradient(150deg,color-mix(in_oklab,var(--color-card)_78%,var(--color-accent)_22%)_0%,color-mix(in_oklab,var(--color-card)_86%,var(--color-primary)_14%)_100%)] p-4 shadow-[0_28px_66px_-52px_color-mix(in_oklab,var(--color-primary)_24%,transparent),inset_0_1px_0_color-mix(in_oklab,var(--color-foreground)_6%,transparent)] backdrop-blur-xl xl:col-span-8">
-          <div className="pointer-events-none absolute -right-16 -top-16 h-44 w-44 rounded-full bg-accent/20 blur-3xl" />
-          <div className="mb-4 grid gap-4 border-b border-border/60 pb-4 sm:grid-cols-3">
-            <div className="sm:col-span-2 rounded-lg border border-border/55 bg-[linear-gradient(165deg,color-mix(in_oklab,var(--color-background)_68%,var(--color-accent)_32%)_0%,color-mix(in_oklab,var(--color-background)_88%,var(--color-card)_12%)_100%)] p-4 shadow-[inset_0_1px_0_color-mix(in_oklab,var(--color-foreground)_6%,transparent)]">
-              <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+      <section className="grid gap-6 xl:grid-cols-12">
+        <article className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-150 fill-mode-both relative overflow-hidden rounded-[1.5rem] border-0 bg-card p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] xl:col-span-8">
+          <div className="mb-6 grid gap-6 border-b border-border/60 pb-6 sm:grid-cols-3">
+            <div className="sm:col-span-2 rounded-[1.5rem] border-0 bg-primary p-6 text-primary-foreground shadow-md relative overflow-hidden">
+              <div className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
+              <p className="text-[12px] uppercase tracking-wider text-primary-foreground/80">
                 Operational Efficiency
               </p>
-              <div className="mt-2 flex items-end gap-2">
-                <p className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
+              <div className="mt-4 flex items-end gap-2">
+                <p className="text-4xl font-semibold tracking-tight sm:text-5xl">
                   {kpis.fleetUtilization}%
                 </p>
-                <p className="pb-1 text-xs font-medium text-status-available">
+                <p className="pb-1 text-xs font-medium text-white/90">
                   +{Math.max(1, kpis.activeTrips)} from last shift
                 </p>
               </div>
-              <div className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+              <div className="mt-6 h-1.5 w-full overflow-hidden rounded-full bg-black/20">
                 <div
-                  className="h-full rounded-full bg-primary"
+                  className="h-full rounded-full bg-white"
                   style={{ width: `${Math.min(100, kpis.fleetUtilization)}%` }}
                 />
               </div>
             </div>
 
-            <div className="rounded-lg border border-border/55 bg-[linear-gradient(165deg,color-mix(in_oklab,var(--color-background)_72%,var(--color-primary)_28%)_0%,color-mix(in_oklab,var(--color-background)_90%,var(--color-card)_10%)_100%)] p-4 shadow-[inset_0_1px_0_color-mix(in_oklab,var(--color-foreground)_6%,transparent)]">
+            <div className="rounded-[1.5rem] border-0 bg-secondary/10 p-6 text-secondary-foreground shadow-sm">
               <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
                 Active Units
               </p>
@@ -167,7 +167,7 @@ export function FleetManagerDashboard() {
           </div>
         </article>
 
-        <article className="relative overflow-hidden rounded-lg border border-border/55 bg-[linear-gradient(155deg,color-mix(in_oklab,var(--color-card)_78%,var(--color-accent)_22%)_0%,color-mix(in_oklab,var(--color-card)_88%,var(--color-primary)_12%)_100%)] p-4 shadow-[0_26px_66px_-52px_color-mix(in_oklab,var(--color-primary)_26%,transparent),inset_0_1px_0_color-mix(in_oklab,var(--color-foreground)_7%,transparent)] backdrop-blur-xl xl:col-span-4">
+        <article className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-500 fill-mode-both relative overflow-hidden rounded-[1.5rem] border-0 bg-card p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] xl:col-span-4">
           <div className="pointer-events-none absolute -left-14 -top-16 h-36 w-36 rounded-full bg-accent/18 blur-3xl" />
           <div className="mb-6 flex items-center justify-between gap-3">
             <h2 className="text-base font-semibold">Control Signals</h2>
@@ -207,7 +207,7 @@ export function FleetManagerDashboard() {
           </div>
         </article>
 
-        <article className="relative overflow-hidden rounded-lg border border-border/55 bg-[linear-gradient(155deg,color-mix(in_oklab,var(--color-card)_80%,var(--color-accent)_20%)_0%,color-mix(in_oklab,var(--color-card)_90%,var(--color-primary)_10%)_100%)] p-4 shadow-[0_26px_64px_-50px_color-mix(in_oklab,var(--color-primary)_24%,transparent),inset_0_1px_0_color-mix(in_oklab,var(--color-foreground)_6%,transparent)] backdrop-blur-xl xl:col-span-8">
+        <article className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300 fill-mode-both relative overflow-hidden rounded-[1.5rem] border-0 bg-card p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] xl:col-span-8">
           <div className="pointer-events-none absolute -right-10 -top-14 h-32 w-32 rounded-full bg-accent/16 blur-2xl" />
           <div className="mb-6 flex items-center justify-between gap-3">
             <div>

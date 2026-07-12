@@ -19,6 +19,7 @@
  */
 
 @theme inline {
+  --font-sans: "Poppins", sans-serif;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -67,9 +68,9 @@
 }
 
 :root {
-  --radius: 0.5rem;
-  /* Light mode - crisp professional */
-  --background: oklch(0.985 0.002 240);
+  --radius: 1.5rem;
+  /* Light mode - Cloudcash Theme */
+  --background: oklch(0.975 0.002 240);
   --foreground: oklch(0.2 0.01 240);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.2 0.01 240);
@@ -83,18 +84,18 @@
   --status-suspended: oklch(0.55 0.2 25);
   --status-retired: oklch(0.5 0.01 240);
 
-  /* Primary: Vibrant Teal */
-  --primary: oklch(0.55 0.12 200);
+  /* Primary: Cloudcash Vibrant Blue */
+  --primary: oklch(0.55 0.16 250);
   --primary-foreground: oklch(0.98 0.01 200);
   
-  /* Secondary: Amber for accents/actions */
-  --secondary: oklch(0.85 0.15 70);
-  --secondary-foreground: oklch(0.3 0.1 70);
+  /* Secondary: Cloudcash Accent Orange/Yellow */
+  --secondary: oklch(0.85 0.18 80);
+  --secondary-foreground: oklch(0.2 0.05 70);
   
   --muted: oklch(0.96 0.005 240);
   --muted-foreground: oklch(0.5 0.01 240);
-  --accent: oklch(0.95 0.02 200);
-  --accent-foreground: oklch(0.3 0.02 200);
+  --accent: oklch(0.96 0.01 250);
+  --accent-foreground: oklch(0.3 0.02 250);
   
   --destructive: oklch(0.55 0.2 25);
   --destructive-foreground: oklch(0.98 0 0);
@@ -108,14 +109,14 @@
   --chart-4: oklch(0.6 0.15 140);
   --chart-5: oklch(0.7 0.1 30);
   
-  --sidebar: oklch(0.98 0.005 240);
+  --sidebar: oklch(1 0 0);
   --sidebar-foreground: oklch(0.2 0.01 240);
-  --sidebar-primary: oklch(0.55 0.12 200);
+  --sidebar-primary: oklch(0.55 0.16 250);
   --sidebar-primary-foreground: oklch(0.98 0.01 200);
-  --sidebar-accent: oklch(0.94 0.01 240);
-  --sidebar-accent-foreground: oklch(0.2 0.01 240);
-  --sidebar-border: oklch(0.92 0.01 240);
-  --sidebar-ring: oklch(0.55 0.12 200);
+  --sidebar-accent: oklch(0.96 0.01 250);
+  --sidebar-accent-foreground: oklch(0.55 0.16 250);
+  --sidebar-border: oklch(1 0 0);
+  --sidebar-ring: oklch(0.55 0.16 250);
   
   /* Status Colors */
   --status-available: oklch(0.65 0.15 150); /* Green */
