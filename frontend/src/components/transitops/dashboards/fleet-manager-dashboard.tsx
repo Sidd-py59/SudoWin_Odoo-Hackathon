@@ -24,22 +24,22 @@ import { getDashboardKpis, vehicles, maintenanceLogs, trips } from "@/lib/transi
 
 const pieData = [
   {
-    name: "Available",
+    name: "available",
     value: vehicles.filter((vehicle) => vehicle.status === "available").length,
     fill: "var(--color-status-available)",
   },
   {
-    name: "On Trip",
+    name: "onTrip",
     value: vehicles.filter((vehicle) => vehicle.status === "on_trip").length,
     fill: "var(--color-status-on-trip)",
   },
   {
-    name: "Maintenance",
+    name: "maintenance",
     value: vehicles.filter((vehicle) => vehicle.status === "maintenance").length,
     fill: "var(--color-status-maintenance)",
   },
   {
-    name: "Retired",
+    name: "retired",
     value: vehicles.filter((vehicle) => vehicle.status === "retired").length,
     fill: "var(--color-status-retired)",
   },

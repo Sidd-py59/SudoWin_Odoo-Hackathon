@@ -292,10 +292,10 @@ export const utilizationTrend = [
 
 export const reportSeries = {
   vehicleRoi: [
-    { name: "Truck", value: 18 },
-    { name: "Van", value: 22 },
-    { name: "Bus", value: 15 },
-    { name: "Mini", value: 27 },
+    { name: "Truck", value: 18, fill: "var(--color-Truck)" },
+    { name: "Van", value: 22, fill: "var(--color-Van)" },
+    { name: "Bus", value: 15, fill: "var(--color-Bus)" },
+    { name: "Mini", value: 27, fill: "var(--color-Mini)" },
   ],
   fuelEfficiency: [
     { month: "Jan", score: 78 },
