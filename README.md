@@ -6,7 +6,7 @@ A centralized Transport Operations Management Platform designed to streamline fl
 
 ## 📌 Overview
 
-TransitOps is a comprehensive transport management solution built for logistics companies to efficiently manage vehicles, drivers, trips, maintenance, fuel expenses, and operational analytics from a single platform. By replacing manual processes with digital workflows, the system enhances operational efficiency, improves visibility, and supports better decision-making.
+TransitOps is an intelligent transport operations platform that goes beyond traditional CRUD by automating fleet availability, driver readiness, maintenance workflows, expense tracking, and operational analytics through a unified workflow.
 
 ---
 
@@ -57,16 +57,86 @@ TransitOps provides a unified platform that enables organizations to:
 
 ### Frontend
 - React
+- Vite
+- TypeScript
+- Tailwind CSS
+- React Router
+- TanStack Query
+- Axios
+- Recharts
+- Lucide React
 
 ### Backend
 - Python
+- FastAPI
+- SQLAlchemy ORM
+- Pydantic
+- JWT Authentication
+- Passlib (bcrypt)
+- Uvicorn
 
 ### Database
 - SQLite
 
-### Version Control
+### Architecture
+
+```
+React + TypeScript
+        │
+        │ REST API
+        ▼
+FastAPI Backend
+        │
+        │ SQLAlchemy ORM
+        ▼
+SQLite Database
+```
+
+### Development Tools
+
 - Git
 - GitHub
+- Visual Studio Code
+
+### Project Highlights
+
+- RESTful API Architecture
+- Role-Based Access Control (RBAC)
+- JWT Authentication
+- Smart Dispatch Validation
+- Automatic Status Synchronization
+- Audit Logging
+- Interactive Analytics Dashboard
+- Responsive Web Interface
+
+---
+
+## 📂 Project Structure
+
+```
+transitops/
+├── backend/
+│   ├── app/
+│   │   ├── routers/
+│   │   ├── services/
+│   │   ├── models.py
+│   │   ├── schemas.py
+│   │   ├── auth.py
+│   │   └── main.py
+│   └── requirements.txt
+│
+├── frontend/
+│   ├── src/
+│   │   ├── api/
+│   │   ├── auth/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── App.tsx
+│   │   └── main.tsx
+│   └── package.json
+│
+└── README.md
+```
 
 ---
 
@@ -119,6 +189,10 @@ The dashboard provides real-time insights including:
 - Predictive Maintenance using AI
 
 ---
+
+## 🌟 Why TransitOps?
+
+TransitOps is designed to simplify transport operations by combining fleet management, driver compliance, trip dispatch, maintenance tracking, expense monitoring, and operational analytics into a single intelligent workflow. By automating critical business rules and providing actionable insights, the platform helps organizations operate more safely, efficiently, and profitably.
 
 ## 👨‍💻 Team
 
